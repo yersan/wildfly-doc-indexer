@@ -33,25 +33,25 @@ public class Indexer implements Callable<Integer> {
     record SectionKey(String title, String href, String url) {}
     record IndexEntry(String title, String url, String content) {}
 
-    @Option(names = "--work-dir", required = true, description = "Path of the WildFly Documentation directory")
-    private Path workDir;
+    @Option(names = "--doc-base-dir", required = true, description = "Path of the WildFly Documentation directory")
+    private Path docBaseDir;
 
-    @Option(names = "--output-dir", description = "Output file for JSON index", defaultValue = ".")
-    private Path outputDir;
+    @Option(names = "--output-file-path", description = "Path of generated index.", defaultValue = "./wildfly-doc-index.json")
+    private Path outputFile;
 
-    @Option(names = "--root-dirs", split = ",", description = "Documentation directories that will be processed", defaultValue = "38,prospero,bootablejar,galleon,galleon-plugins")
-    private Path[] rootDirs;
+    @Option(names = "--scan-dirs", split = ",", description = "Comma separated list of the directory names relative to --doc-base-dir that will be scanned to find html files to be processed", defaultValue = "38,prospero,bootablejar,galleon,galleon-plugins")
+    private Path[] scanDirs;
 
     @Option(names = "--exclude-dirs", split = ",", description = "Directory names that if found will be skipped", defaultValue = "downloads,feature-pack,images")
     private Path[] excludeDirs;
 
     @Override
     public Integer call() throws Exception {
-        for (Path rootDir : rootDirs) {
+        for (Path rootDir : scanDirs) {
             processRootDir(rootDir, excludeDirs);
         }
 
-        writeIndexToJson(outputDir.resolve("wildfly-doc-index.json"));
+        writeIndexToJson(outputFile);
 
         return 0;
     }
@@ -61,7 +61,7 @@ public class Indexer implements Callable<Integer> {
                 .map(Path::toString)
                 .collect(Collectors.toSet());
 
-        Files.walkFileTree(workDir.resolve(rootDir), new SimpleFileVisitor<>() {
+        Files.walkFileTree(docBaseDir.resolve(rootDir), new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                 if (excludeNames.contains(dir.getFileName().toString())) {
@@ -84,7 +84,7 @@ public class Indexer implements Callable<Integer> {
         LOG.info("Processing " + htmlFile);
         Document doc = Jsoup.parse(htmlFile, "UTF-8");
         cleanHtml(doc);
-        processContent(doc, workDir.relativize(htmlFile).toString());
+        processContent(doc, docBaseDir.relativize(htmlFile).toString());
     }
 
     void processContent(Document doc, String url) {
