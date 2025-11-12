@@ -31,7 +31,7 @@ public class Indexer implements Callable<Integer> {
     private final static Logger LOG = Logger.getAnonymousLogger();
     private Map<SectionKey, List<String>> genIndex = new HashMap<>();
     record SectionKey(String title, String href, String url) {}
-    record IndexEntry(String title, String url, String content) {}
+    public record IndexEntry(String title, String url, String content) {}
 
     @Option(names = "--doc-base-dir", required = true, description = "Path of the WildFly Documentation directory")
     private Path docBaseDir;
@@ -197,7 +197,7 @@ public class Indexer implements Callable<Integer> {
         return entries;
     }
 
-    private void writeIndexToJson(Path outputFile) throws IOException {
+    void writeIndexToJson(Path outputFile) throws IOException {
         List<IndexEntry> entries = convertToIndexEntries();
         ObjectMapper mapper = new ObjectMapper();
         String jsonContent = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(entries);
