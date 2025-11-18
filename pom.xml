@@ -107,7 +107,6 @@
     </dependencies>
 
     <build>
-        <finalName>wildfly-doc-indexer</finalName>
         <pluginManagement>
             <plugins>
                 <plugin>

@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+    branches:
+    - main
+    paths-ignore:
+    - '.gitignore'
+    - 'LICENSE'
+    - 'README.md'
+  pull_request:
+    paths-ignore:
+    - '.gitignore'
+    - 'examples'
+    - 'README.md'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.os }}-${{ matrix.jdk }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        jdk: [ 17, 21, 25 ]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Set up JDK ${{ matrix.jdk }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.jdk }}
+        distribution: 'adopt'
+        cache: maven
+    - name: Build and test
+      run: mvn clean install
