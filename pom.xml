@@ -14,7 +14,7 @@
 
     <groupId>org.wildfly.wildfly-doc-indexer</groupId>
     <artifactId>wildfly-doc-indexer</artifactId>
-    <version>1.0.2.Final</version>
+    <version>1.0.3.Final-SNAPSHOT</version>
 
     <name>WildFly Doc Indexer</name>
     <description>This project extracts searchable content from WildFly documentation HTML files generating an index.</description>
