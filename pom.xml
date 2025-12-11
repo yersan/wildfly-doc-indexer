@@ -48,11 +48,16 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!--dependencies versions-->
         <jackson.annotations.version>2.20</jackson.annotations.version>
         <jackson.version>2.20.0</jackson.version>
         <jsoup.version>1.21.2</jsoup.version>
         <junit.version>6.0.0</junit.version>
         <picocli.version>4.7.7</picocli.version>
+
+        <!--plugins versions-->
+        <maven.shade.plugin.version>3.6.1</maven.shade.plugin.version>
+        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
 
         <!-- Nexus deployment settings -->
         <nexus.repository.staging>wildfly-extras-staging</nexus.repository.staging>
@@ -112,50 +117,37 @@
     </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <annotationProcessorPaths>
-                            <path>
-                                <groupId>info.picocli</groupId>
-                                <artifactId>picocli-codegen</artifactId>
-                                <version>${picocli.version}</version>
-                            </path>
-                        </annotationProcessorPaths>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <configuration>
-                        <archive>
-                            <manifest>
-                                <classpathPrefix>lib/</classpathPrefix>
-                                <addClasspath>true</addClasspath>
-                                <mainClass>org.wildfly.doc.indexer.Main</mainClass>
-                            </manifest>
-                        </archive>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>info.picocli</groupId>
+                            <artifactId>picocli-codegen</artifactId>
+                            <version>${picocli.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven.shade.plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>copy-dependencies</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>copy-dependencies</goal>
+                            <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <includeScope>runtime</includeScope>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>org.wildfly.doc.indexer.Main</mainClass>
+                                </transformer>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>
